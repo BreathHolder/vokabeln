@@ -28,6 +28,29 @@
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center justify-start p-4 sm:p-6">
 
+  <div class="w-full max-w-7xl lg:grid lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-8">
+    <!-- Vocabulary Collection Navigation -->
+    <aside class="mb-6 rounded-2xl border border-slate-700 bg-slate-800/80 p-3 shadow-xl lg:sticky lg:top-6 lg:mb-0 lg:self-start" aria-labelledby="collectionNavHeading">
+      <div class="px-2 pb-3 pt-1">
+        <div class="text-xs font-bold uppercase tracking-[0.18em] text-amber-400">Library</div>
+        <h2 id="collectionNavHeading" class="mt-1 text-lg font-extrabold text-white">Vocabulary Sets</h2>
+        <p class="mt-1 text-xs leading-relaxed text-slate-400">Choose a vocabulary collection, then select a group to practice.</p>
+      </div>
+
+      <nav aria-label="Vocabulary collections">
+        <ol class="space-y-2">
+          <li>
+            <a href="./index.html" aria-current="page" class="grid grid-cols-[3.25rem_minmax(0,1fr)] items-center overflow-hidden rounded-xl border border-indigo-500/50 bg-indigo-600/20 text-left shadow-sm transition hover:bg-indigo-600/30 focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
+              <span class="flex h-full min-h-16 items-center justify-center border-r border-indigo-500/30 bg-indigo-950/60 font-mono text-sm font-extrabold tracking-wider text-amber-300">001</span>
+              <span class="px-3 py-3 text-sm font-bold leading-snug text-white">Herzlich Willkommen Vokabeln 1</span>
+            </a>
+          </li>
+        </ol>
+      </nav>
+    </aside>
+
+    <main class="min-w-0 flex flex-col items-center">
+
   <!-- Header -->
   <header class="w-full max-w-2xl text-center my-4">
     <div class="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 text-amber-400 rounded-full text-xs font-semibold uppercase tracking-wider mb-2 border border-amber-500/20">
@@ -227,6 +250,9 @@
       </li>
     </ul>
   </section>
+
+    </main>
+  </div>
 
   <!-- Load each standalone vocabulary group before the app script. -->
   <script src="vocab/group-1.js"></script>
