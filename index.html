@@ -218,6 +218,53 @@
     </div>
   </div>
 
+  <!-- Completed Deck State -->
+  <div id="deckCompleteSection" class="hidden w-full max-w-xl rounded-2xl border-2 border-emerald-500/40 bg-gradient-to-b from-emerald-950/70 to-slate-800 p-8 text-center shadow-xl">
+    <div class="text-5xl" aria-hidden="true">🎉</div>
+    <h2 class="mt-3 text-2xl font-extrabold text-white">You know this deck!</h2>
+    <p class="mt-2 text-sm text-emerald-200">Every card in this selection has been removed for this study session.</p>
+    <button onclick="restoreAllCards()" class="mt-5 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-emerald-900/30 transition hover:bg-emerald-500 active:scale-95">
+      Show all cards again
+    </button>
+  </div>
+
+  <!-- Study Deck Controls -->
+  <div class="mt-6 grid w-full max-w-xl grid-cols-2 gap-3" aria-label="Study deck controls">
+    <button id="knowCardBtn" onclick="markCurrentCardKnown()" class="group col-span-2 flex min-h-20 items-center justify-center gap-4 overflow-hidden rounded-2xl border-2 border-emerald-300/70 bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-3 text-left text-white shadow-lg shadow-emerald-950/40 transition hover:-translate-y-0.5 hover:from-emerald-500 hover:to-teal-500 hover:shadow-xl active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-40">
+      <span class="flex h-14 w-14 shrink-0 -rotate-6 items-center justify-center rounded-2xl border-2 border-slate-900/30 bg-amber-300 shadow-[3px_4px_0_rgba(15,23,42,0.45)] transition group-hover:rotate-3 group-hover:scale-110" aria-hidden="true">
+        <svg class="h-10 w-10" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22 29H12C9.8 29 8 30.8 8 33V51C8 53.2 9.8 55 12 55H22V29Z" fill="#6366F1" stroke="#172554" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M22 52C29 57 43 57 49 54C53 52 53 47 50 45C55 43 55 37 51 35C54 31 51 27 47 27H37C40 19 36 10 31 10C29 10 29 12 29 16C29 22 25 27 22 31V52Z" fill="#FDE68A" stroke="#172554" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M14 49H18" stroke="white" stroke-width="3" stroke-linecap="round"/>
+          <path d="M38 34H49M37 42H49M35 50H47" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" opacity=".75"/>
+        </svg>
+      </span>
+      <span>
+        <span class="block text-lg font-extrabold">I know this!</span>
+        <span class="block text-xs font-medium text-emerald-50/90">Hide this card for this session</span>
+      </span>
+    </button>
+
+    <button onclick="restoreAllCards()" class="flex min-h-16 items-center justify-center gap-2 rounded-xl border border-indigo-500/50 bg-indigo-950/60 px-3 py-3 text-sm font-bold text-indigo-100 transition hover:bg-indigo-900 active:scale-95">
+      <svg class="h-8 w-8 shrink-0" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="13" y="7" width="25" height="32" rx="4" fill="#818CF8" stroke="#C7D2FE" stroke-width="2.5" transform="rotate(8 13 7)"/>
+        <rect x="7" y="10" width="25" height="32" rx="4" fill="#312E81" stroke="#A5B4FC" stroke-width="2.5"/>
+        <path d="M14 19H25M14 25H25M14 31H21" stroke="#FDE68A" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <span>Show all cards</span>
+    </button>
+
+    <button id="shuffleCardsBtn" onclick="shuffleCards()" class="flex min-h-16 items-center justify-center gap-2 rounded-xl border border-amber-500/50 bg-amber-950/40 px-3 py-3 text-sm font-bold text-amber-100 transition hover:bg-amber-900/60 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40">
+      <svg class="h-8 w-8 shrink-0" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="8" width="15" height="21" rx="3" fill="#F59E0B" stroke="#FDE68A" stroke-width="2" transform="rotate(-10 6 8)"/>
+        <rect x="27" y="19" width="15" height="21" rx="3" fill="#D97706" stroke="#FDE68A" stroke-width="2" transform="rotate(8 27 19)"/>
+        <path d="M8 37C19 37 18 13 34 13H40M36 9L40 13L36 17" stroke="#FDE68A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8 13C18 13 20 36 34 36H40M36 32L40 36L36 40" stroke="#FDE68A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Shuffle cards</span>
+    </button>
+  </div>
+
   <!-- Key Vocabulary Reference Modal / Table Button -->
   <div class="mt-8 text-center">
     <button onclick="toggleSummary()" class="text-xs text-slate-400 hover:text-indigo-400 font-semibold underline underline-offset-4 transition">
@@ -268,7 +315,9 @@
     const vocabGroups = window.VOCAB_GROUPS;
 
     let selectedGroup = '3';
-    let vocabData = vocabGroups[selectedGroup].items;
+    let sourceVocabData = vocabGroups[selectedGroup].items;
+    let vocabData = [...sourceVocabData];
+    const knownCards = new Set();
 
     let currentIndex = 0;
     let isFlipped = false;
@@ -307,7 +356,8 @@
 
     function changeGroup(groupId) {
       selectedGroup = groupId;
-      vocabData = groupId === 'all' ? getAllVocab() : vocabGroups[groupId].items;
+      sourceVocabData = groupId === 'all' ? getAllVocab() : vocabGroups[groupId].items;
+      vocabData = sourceVocabData.filter(item => !knownCards.has(item));
       currentIndex = 0;
       spellingScore = { correct: 0, total: 0 };
 
@@ -317,11 +367,10 @@
         : 'Herzlich Willkommen Vokabeln 1 · All Groups';
       document.getElementById('groupDescription').innerText = selected
         ? selected.description
-        : `Practice all ${vocabData.length} words and phrases together.`;
+        : `Practice all ${sourceVocabData.length} words and phrases together.`;
       document.getElementById('summaryTitle').innerText = selected
         ? `${selected.name} German Vocabulary Reference`
         : 'All German Vocabulary Groups';
-      document.getElementById('summaryCount').innerText = `all ${vocabData.length}`;
 
       window.speechSynthesis?.cancel();
       populateSummaryTable();
@@ -329,12 +378,37 @@
     }
 
     function updateCardUI() {
+      const isDeckComplete = vocabData.length === 0;
+      const flashcardSection = document.getElementById('flashcardSection');
+      const spellingSection = document.getElementById('spellingSection');
+      const completeSection = document.getElementById('deckCompleteSection');
+      const knowButton = document.getElementById('knowCardBtn');
+      const shuffleButton = document.getElementById('shuffleCardsBtn');
+      const hiddenCount = sourceVocabData.length - vocabData.length;
+
+      completeSection.classList.toggle('hidden', !isDeckComplete);
+      knowButton.disabled = isDeckComplete;
+      shuffleButton.disabled = vocabData.length < 2;
+      document.getElementById('accuracyCounter').innerText = `Score: ${spellingScore.correct}/${spellingScore.total}`;
+      document.getElementById('summaryCount').innerText = hiddenCount > 0
+        ? `${vocabData.length} remaining`
+        : `all ${vocabData.length}`;
+
+      if (isDeckComplete) {
+        flashcardSection.classList.add('hidden');
+        spellingSection.classList.add('hidden');
+        document.getElementById('cardCounter').innerText = '0 cards remaining';
+        document.getElementById('progressBar').style.width = '100%';
+        return;
+      }
+
+      flashcardSection.classList.toggle('hidden', currentMode !== 'flashcard');
+      spellingSection.classList.toggle('hidden', currentMode !== 'spelling');
       const item = vocabData[currentIndex];
       
       // Update progress
       document.getElementById('cardCounter').innerText = `Card ${currentIndex + 1} of ${vocabData.length}`;
       document.getElementById('progressBar').style.width = `${((currentIndex + 1) / vocabData.length) * 100}%`;
-      document.getElementById('accuracyCounter').innerText = `Score: ${spellingScore.correct}/${spellingScore.total}`;
 
       // Flashcard updates
       document.getElementById('fcEnglish').innerText = item.english;
@@ -351,7 +425,7 @@
       document.getElementById('spEnglish').innerText = item.english;
       document.getElementById('spContext').innerText = item.context;
       document.getElementById('spellingInput').value = '';
-      document.getElementById('spellingInput').focus();
+      if (currentMode === 'spelling') document.getElementById('spellingInput').focus();
       
       const feedback = document.getElementById('spellingFeedback');
       feedback.className = 'hidden mt-5 p-4 rounded-xl border text-sm transition-all';
@@ -360,6 +434,7 @@
     }
 
     function flipCard() {
+      if (!vocabData.length) return;
       isFlipped = !isFlipped;
       const inner = document.getElementById('flashcardInner');
       if (isFlipped) {
@@ -370,12 +445,49 @@
     }
 
     function nextCard() {
+      if (!vocabData.length) return;
       currentIndex = (currentIndex + 1) % vocabData.length;
       updateCardUI();
     }
 
     function prevCard() {
+      if (!vocabData.length) return;
       currentIndex = (currentIndex - 1 + vocabData.length) % vocabData.length;
+      updateCardUI();
+    }
+
+    function markCurrentCardKnown() {
+      if (!vocabData.length) return;
+
+      knownCards.add(vocabData[currentIndex]);
+      vocabData.splice(currentIndex, 1);
+      if (currentIndex >= vocabData.length) currentIndex = 0;
+
+      window.speechSynthesis?.cancel();
+      populateSummaryTable();
+      updateCardUI();
+    }
+
+    function restoreAllCards() {
+      knownCards.clear();
+      sourceVocabData = selectedGroup === 'all' ? getAllVocab() : vocabGroups[selectedGroup].items;
+      vocabData = [...sourceVocabData];
+      currentIndex = 0;
+
+      populateSummaryTable();
+      updateCardUI();
+    }
+
+    function shuffleCards() {
+      if (vocabData.length < 2) return;
+
+      for (let i = vocabData.length - 1; i > 0; i--) {
+        const randomIndex = Math.floor(Math.random() * (i + 1));
+        [vocabData[i], vocabData[randomIndex]] = [vocabData[randomIndex], vocabData[i]];
+      }
+
+      currentIndex = 0;
+      populateSummaryTable();
       updateCardUI();
     }
 
@@ -481,6 +593,7 @@
     }
 
     function speakGermanCurrent() {
+      if (!vocabData.length) return;
       const text = vocabData[currentIndex].german;
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
