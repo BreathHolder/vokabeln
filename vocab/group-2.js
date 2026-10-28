@@ -111,6 +111,24 @@ window.VOCAB_GROUPS['2'] = {
       phonetic: 'FEE-leh GREW-seh',
       context: 'Letter or message sign-off',
       notes: "Capitalize 'Viele' and 'Grüße'. 'Grüße' contains both the umlaut 'ü' and the Eszett 'ß'."
+    },
+    {
+      id: 13,
+      english: 'To invite someone warmly to the celebration',
+      german: 'Ganz herzlich zum Fest einladen',
+      cleanGerman: 'Ganz herzlich zum Fest einladen',
+      phonetic: 'gahnts HEHRTS-likh tsoom fehst EYN-lah-den',
+      context: 'Invitation phrase',
+      notes: "Capitalize 'Ganz' and the noun 'Fest'. 'zum' is the contraction of 'zu dem', and 'einladen' is one word."
+    },
+    {
+      id: 14,
+      english: 'Please let me know.',
+      german: 'Bitte gebt mir Bescheid.',
+      cleanGerman: 'Bitte gebt mir Bescheid',
+      phonetic: 'BIT-eh gaypt meer beh-SHYDE',
+      context: 'Informal plural request',
+      notes: "Use 'gebt' when speaking informally to more than one person. Capitalize the noun 'Bescheid'."
     }
   ]
 };
