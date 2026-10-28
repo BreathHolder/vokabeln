@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Herzlich Willkommen — German Vocab & Spelling Master</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .perspective {
+      perspective: 1000px;
+    }
+    .transform-style-3d {
+      transform-style: preserve-3d;
+    }
+    .backface-hidden {
+      backface-visibility: hidden;
+    }
+    .rotate-y-180 {
+      transform: rotateY(180deg);
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center justify-start p-4 sm:p-6">
+
+  <!-- Header -->
+  <header class="w-full max-w-2xl text-center my-4">
+    <div class="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 text-amber-400 rounded-full text-xs font-semibold uppercase tracking-wider mb-2 border border-amber-500/20">
+      <span id="groupBadge">Herzlich Willkommen Vokabeln 1 · Group 3</span>
+    </div>
+    <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">German Flashcards & Spelling Trainer</h1>
+    <p class="text-sm text-slate-400 mt-1">See the English prompt, recall & spell the German phrase with correct accents & capitalization.</p>
+  </header>
+
+  <!-- Vocabulary Group Switcher -->
+  <div class="w-full max-w-md mb-4">
+    <label for="groupSelect" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+      Vocabulary group
+    </label>
+    <div class="relative">
+      <select id="groupSelect" onchange="changeGroup(this.value)" class="w-full appearance-none rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 pr-10 text-sm font-semibold text-white shadow-md outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20">
+        <!-- Options injected from vocabGroups -->
+      </select>
+      <span class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">▾</span>
+    </div>
+    <p id="groupDescription" class="mt-2 text-xs text-slate-400">Invitations, replies, and useful connecting words.</p>
+  </div>
+
+  <!-- Mode Switcher -->
+  <div class="flex items-center bg-slate-800 p-1 rounded-xl border border-slate-700 max-w-md w-full mb-6">
+    <button id="modeFlashcardBtn" onclick="setMode('flashcard')" class="flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 bg-indigo-600 text-white shadow-md">
+      🃏 Flashcard Mode
+    </button>
+    <button id="modeSpellingBtn" onclick="setMode('spelling')" class="flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 text-slate-400 hover:text-white">
+      ✍️ Spelling Quiz
+    </button>
+  </div>
+
+  <!-- Progress Bar & Counter -->
+  <div class="w-full max-w-xl flex items-center justify-between text-xs font-medium text-slate-400 mb-2 px-1">
+    <span id="cardCounter">Card 1 of 10</span>
+    <span id="accuracyCounter">Score: 0/0</span>
+  </div>
+  <div class="w-full max-w-xl bg-slate-800 h-2 rounded-full overflow-hidden mb-6 border border-slate-700/60">
+    <div id="progressBar" class="bg-gradient-to-r from-indigo-500 to-amber-500 h-full w-[10%] transition-all duration-300"></div>
+  </div>
+
+  <!-- FLASHCARD MODE VIEW -->
+  <div id="flashcardSection" class="w-full max-w-xl flex flex-col items-center">
+    <div class="perspective w-full h-80 sm:h-84 cursor-pointer select-none" onclick="flipCard()">
+      <div id="flashcardInner" class="relative w-full h-full transform-style-3d transition-transform duration-500 rounded-2xl shadow-xl">
+        
+        <!-- Front of Card (English) -->
+        <div class="absolute inset-0 w-full h-full backface-hidden bg-slate-800 border-2 border-slate-700/80 rounded-2xl p-6 sm:p-8 flex flex-col justify-between items-center text-center">
+          <div class="w-full flex justify-between items-center text-xs text-slate-400 font-medium">
+            <span class="px-2.5 py-0.5 rounded-full bg-slate-700/80 text-slate-300">English Prompt</span>
+            <span>Click card to reveal German</span>
+          </div>
+
+          <div class="my-auto">
+            <h2 id="fcEnglish" class="text-2xl sm:text-3xl font-bold text-white tracking-wide">Thank you for the invitation!</h2>
+            <p id="fcContext" class="text-sm text-slate-400 mt-2 italic">Standard polite phrase</p>
+          </div>
+
+          <div class="text-xs text-indigo-400 font-semibold flex items-center gap-1.5 animate-pulse">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            Click or press space to flip
+          </div>
+        </div>
+
+        <!-- Back of Card (German + Tips) -->
+        <div class="absolute inset-0 w-full h-full backface-hidden rotate-y-180 bg-gradient-to-b from-indigo-950 to-slate-800 border-2 border-indigo-500/40 rounded-2xl p-6 sm:p-8 flex flex-col justify-between items-center text-center">
+          <div class="w-full flex justify-between items-center text-xs text-indigo-300 font-medium">
+            <span class="px-2.5 py-0.5 rounded-full bg-indigo-900/60 text-indigo-200 border border-indigo-700/40">German Answer</span>
+            <button onclick="speakGerman(event)" class="hover:text-white p-1 rounded-full bg-indigo-800/50 hover:bg-indigo-700 transition" title="Pronounce">
+              🔊 Listen
+            </button>
+          </div>
+
+          <div class="my-auto">
+            <h2 id="fcGerman" class="text-2xl sm:text-3xl font-extrabold text-amber-300 tracking-wide">Vielen Dank für die Einladung!</h2>
+            <p id="fcPronounce" class="text-xs text-slate-300 mt-1 font-mono italic">/ FEE-len dahnk feer dee AYN-lah-doong /</p>
+            <div id="fcSpellingNotes" class="mt-3 text-xs bg-black/30 rounded-lg p-2.5 text-slate-300 text-left border border-indigo-900/50">
+              <span class="text-amber-400 font-semibold block mb-0.5">Spelling Alerts:</span>
+              <span id="fcNotesContent">Capitalize Dank and Einladung. Watch the umlaut in für.</span>
+            </div>
+          </div>
+
+          <div class="text-xs text-slate-400">Click anywhere to flip back</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Navigation Controls -->
+    <div class="flex items-center justify-between w-full mt-6 gap-3">
+      <button onclick="prevCard()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 rounded-xl text-sm font-semibold transition border border-slate-700 flex items-center gap-1">
+        ← Previous
+      </button>
+      <button onclick="speakGermanCurrent()" class="px-3 py-2.5 bg-indigo-900/50 hover:bg-indigo-800 text-indigo-200 rounded-xl text-sm font-semibold transition border border-indigo-700/50 flex items-center gap-1">
+        🔊 Hear Word
+      </button>
+      <button onclick="nextCard()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white rounded-xl text-sm font-bold shadow-md shadow-indigo-600/30 transition flex items-center gap-1">
+        Next →
+      </button>
+    </div>
+  </div>
+
+  <!-- SPELLING QUIZ MODE VIEW -->
+  <div id="spellingSection" class="hidden w-full max-w-xl flex flex-col">
+    <div class="bg-slate-800 border-2 border-slate-700/80 rounded-2xl p-6 sm:p-8 shadow-xl">
+      <div class="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-2">Write in German:</div>
+      <div id="spEnglish" class="text-xl sm:text-2xl font-bold text-white mb-1">Thank you for the invitation!</div>
+      <div id="spContext" class="text-xs text-slate-400 mb-6 italic">Make sure to capitalize nouns and include any punctuation.</div>
+
+      <!-- Quick German Character Inserters -->
+      <div class="flex items-center gap-1.5 mb-3 flex-wrap">
+        <span class="text-xs text-slate-400 mr-1">Quick Accents:</span>
+        <button onclick="insertChar('ä')" class="px-2.5 py-1 bg-slate-700 hover:bg-indigo-600 text-white rounded text-sm font-semibold">ä</button>
+        <button onclick="insertChar('ö')" class="px-2.5 py-1 bg-slate-700 hover:bg-indigo-600 text-white rounded text-sm font-semibold">ö</button>
+        <button onclick="insertChar('ü')" class="px-2.5 py-1 bg-slate-700 hover:bg-indigo-600 text-white rounded text-sm font-semibold">ü</button>
+        <button onclick="insertChar('Ä')" class="px-2.5 py-1 bg-slate-700 hover:bg-indigo-600 text-white rounded text-sm font-semibold">Ä</button>
+        <button onclick="insertChar('Ö')" class="px-2.5 py-1 bg-slate-700 hover:bg-indigo-600 text-white rounded text-sm font-semibold">Ö</button>
+        <button onclick="insertChar('Ü')" class="px-2.5 py-1 bg-slate-700 hover:bg-indigo-600 text-white rounded text-sm font-semibold">Ü</button>
+        <button onclick="insertChar('ß')" class="px-2.5 py-1 bg-slate-700 hover:bg-indigo-600 text-white rounded text-sm font-semibold">ß</button>
+      </div>
+
+      <!-- User Input -->
+      <form onsubmit="checkSpelling(event)" class="space-y-4">
+        <div>
+          <input 
+            type="text" 
+            id="spellingInput" 
+            autocomplete="off" 
+            autocorrect="off" 
+            autocapitalize="off" 
+            spellcheck="false"
+            placeholder="Type German spelling here..."
+            class="w-full px-4 py-3 bg-slate-900 border-2 border-slate-700 rounded-xl text-white font-medium focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-lg transition"
+          >
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button type="submit" id="submitSpellingBtn" class="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition">
+            Check Answer
+          </button>
+          <button type="button" onclick="giveSpellingHint()" class="px-4 py-3 bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold rounded-xl text-sm transition">
+            💡 Hint
+          </button>
+        </div>
+      </form>
+
+      <!-- Feedback Area -->
+      <div id="spellingFeedback" class="hidden mt-5 p-4 rounded-xl border text-sm transition-all">
+        <div id="feedbackTitle" class="font-bold mb-1"></div>
+        <div id="feedbackDetail" class="text-xs text-slate-300"></div>
+        <div id="feedbackNextBtnContainer" class="mt-3 hidden">
+          <button onclick="nextSpellingCard()" class="px-4 py-2 bg-slate-900 hover:bg-slate-950 text-white font-semibold rounded-lg text-xs transition border border-slate-700">
+            Next Word →
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Key Vocabulary Reference Modal / Table Button -->
+  <div class="mt-8 text-center">
+    <button onclick="toggleSummary()" class="text-xs text-slate-400 hover:text-indigo-400 font-semibold underline underline-offset-4 transition">
+      📋 View <span id="summaryCount">all 10</span> target words & phrases checklist
+    </button>
+  </div>
+
+  <!-- Word Reference Modal -->
+  <div id="summaryModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-700 mb-4">
+        <h3 id="summaryTitle" class="text-lg font-bold text-white">Group 3 German Vocabulary Reference</h3>
+        <button onclick="toggleSummary()" class="text-slate-400 hover:text-white p-1">✕</button>
+      </div>
+      <div class="space-y-3" id="wordListTable">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <section class="w-full max-w-2xl mt-8 mb-6 rounded-2xl border border-slate-700 bg-slate-800/70 p-5 sm:p-6" aria-labelledby="guideHeading">
+    <h2 id="guideHeading" class="text-lg font-bold text-white mb-4">What this app includes</h2>
+    <ul class="space-y-4 text-sm text-slate-300">
+      <li>
+        <h3 class="font-semibold text-indigo-300">🃏 Dual modes</h3>
+        <p class="mt-1"><strong class="text-slate-200">Flashcard Mode:</strong> See the English prompt, then reveal the German spelling, phonetic guide, and spelling reminders for capitalization, double consonants, and umlauts.</p>
+        <p class="mt-1"><strong class="text-slate-200">Spelling Quiz:</strong> Type the German phrase using the on-screen umlaut keys (<span class="font-medium text-amber-300">ä, ö, ü, ß</span>).</p>
+      </li>
+      <li>
+        <h3 class="font-semibold text-indigo-300">🔊 Audio pronunciation</h3>
+        <p class="mt-1">Hear each phrase with your browser’s German (<span class="font-medium text-slate-200">de-DE</span>) text-to-speech voice at a learner-friendly pace.</p>
+      </li>
+      <li>
+        <h3 class="font-semibold text-indigo-300">✍️ Smart spelling evaluation</h3>
+        <p class="mt-1">Get distinct feedback for spelling mistakes and near-matches that only need capitalization or punctuation corrections.</p>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Load each standalone vocabulary group before the app script. -->
+  <script src="vocab/group-2.js"></script>
+  <script src="vocab/group-3.js"></script>
+  <script>
+    const vocabGroups = window.VOCAB_GROUPS;
+
+    let selectedGroup = '3';
+    let vocabData = vocabGroups[selectedGroup].items;
+
+    let currentIndex = 0;
+    let isFlipped = false;
+    let currentMode = 'flashcard'; // 'flashcard' or 'spelling'
+    let spellingScore = { correct: 0, total: 0 };
+    let hasAnsweredCurrentSpelling = false;
+
+    function getAllVocab() {
+      return Object.values(vocabGroups).flatMap(group => group.items);
+    }
+
+    function populateGroupSelect() {
+      const select = document.getElementById('groupSelect');
+      const groups = Object.entries(vocabGroups);
+      const allCount = getAllVocab().length;
+
+      select.innerHTML = `
+        <option value="all">All groups (${allCount})</option>
+        ${groups.map(([id, group]) => `<option value="${id}">${group.name} (${group.items.length})</option>`).join('')}
+      `;
+      select.value = selectedGroup;
+    }
+
+    function changeGroup(groupId) {
+      selectedGroup = groupId;
+      vocabData = groupId === 'all' ? getAllVocab() : vocabGroups[groupId].items;
+      currentIndex = 0;
+      spellingScore = { correct: 0, total: 0 };
+
+      const selected = groupId === 'all' ? null : vocabGroups[groupId];
+      document.getElementById('groupBadge').innerText = selected
+        ? `Herzlich Willkommen Vokabeln 1 · ${selected.name}`
+        : 'Herzlich Willkommen Vokabeln 1 · All Groups';
+      document.getElementById('groupDescription').innerText = selected
+        ? selected.description
+        : `Practice all ${vocabData.length} words and phrases together.`;
+      document.getElementById('summaryTitle').innerText = selected
+        ? `${selected.name} German Vocabulary Reference`
+        : 'All German Vocabulary Groups';
+      document.getElementById('summaryCount').innerText = `all ${vocabData.length}`;
+
+      window.speechSynthesis?.cancel();
+      populateSummaryTable();
+      updateCardUI();
+    }
+
+    function updateCardUI() {
+      const item = vocabData[currentIndex];
+      
+      // Update progress
+      document.getElementById('cardCounter').innerText = `Card ${currentIndex + 1} of ${vocabData.length}`;
+      document.getElementById('progressBar').style.width = `${((currentIndex + 1) / vocabData.length) * 100}%`;
+      document.getElementById('accuracyCounter').innerText = `Score: ${spellingScore.correct}/${spellingScore.total}`;
+
+      // Flashcard updates
+      document.getElementById('fcEnglish').innerText = item.english;
+      document.getElementById('fcContext').innerText = item.context;
+      document.getElementById('fcGerman').innerText = item.german;
+      document.getElementById('fcPronounce').innerText = `[ ${item.phonetic} ]`;
+      document.getElementById('fcNotesContent').innerText = item.notes;
+
+      // Reset flip
+      isFlipped = false;
+      document.getElementById('flashcardInner').classList.remove('rotate-y-180');
+
+      // Spelling Mode updates
+      document.getElementById('spEnglish').innerText = item.english;
+      document.getElementById('spContext').innerText = item.context;
+      document.getElementById('spellingInput').value = '';
+      document.getElementById('spellingInput').focus();
+      
+      const feedback = document.getElementById('spellingFeedback');
+      feedback.className = 'hidden mt-5 p-4 rounded-xl border text-sm transition-all';
+      document.getElementById('feedbackNextBtnContainer').classList.add('hidden');
+      hasAnsweredCurrentSpelling = false;
+    }
+
+    function flipCard() {
+      isFlipped = !isFlipped;
+      const inner = document.getElementById('flashcardInner');
+      if (isFlipped) {
+        inner.classList.add('rotate-y-180');
+      } else {
+        inner.classList.remove('rotate-y-180');
+      }
+    }
+
+    function nextCard() {
+      currentIndex = (currentIndex + 1) % vocabData.length;
+      updateCardUI();
+    }
+
+    function prevCard() {
+      currentIndex = (currentIndex - 1 + vocabData.length) % vocabData.length;
+      updateCardUI();
+    }
+
+    function setMode(mode) {
+      currentMode = mode;
+      const fcSec = document.getElementById('flashcardSection');
+      const spSec = document.getElementById('spellingSection');
+      const fcBtn = document.getElementById('modeFlashcardBtn');
+      const spBtn = document.getElementById('modeSpellingBtn');
+
+      if (mode === 'flashcard') {
+        fcSec.classList.remove('hidden');
+        spSec.classList.add('hidden');
+        fcBtn.className = 'flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 bg-indigo-600 text-white shadow-md';
+        spBtn.className = 'flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 text-slate-400 hover:text-white';
+      } else {
+        fcSec.classList.add('hidden');
+        spSec.classList.remove('hidden');
+        spBtn.className = 'flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 bg-indigo-600 text-white shadow-md';
+        fcBtn.className = 'flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 text-slate-400 hover:text-white';
+        setTimeout(() => document.getElementById('spellingInput').focus(), 100);
+      }
+      updateCardUI();
+    }
+
+    function insertChar(char) {
+      const input = document.getElementById('spellingInput');
+      const start = input.selectionStart;
+      const end = input.selectionEnd;
+      const text = input.value;
+      input.value = text.substring(0, start) + char + text.substring(end);
+      input.focus();
+      input.selectionStart = input.selectionEnd = start + char.length;
+    }
+
+    function normalizeText(str) {
+      return str.trim().replace(/[.!?]/g, '').replace(/\s+/g, ' ');
+    }
+
+    function checkSpelling(event) {
+      event.preventDefault();
+      const input = document.getElementById('spellingInput');
+      const userText = input.value.trim();
+      if (!userText) return;
+
+      const item = vocabData[currentIndex];
+      const feedback = document.getElementById('spellingFeedback');
+      const title = document.getElementById('feedbackTitle');
+      const detail = document.getElementById('feedbackDetail');
+      const nextBtnContainer = document.getElementById('feedbackNextBtnContainer');
+
+      const isExactMatch = userText === item.german || userText === item.cleanGerman;
+      const isCaseInsensitiveMatch = normalizeText(userText).toLowerCase() === normalizeText(item.german).toLowerCase();
+
+      feedback.classList.remove('hidden');
+      nextBtnContainer.classList.remove('hidden');
+
+      if (!hasAnsweredCurrentSpelling) {
+        spellingScore.total++;
+      }
+
+      if (isExactMatch) {
+        if (!hasAnsweredCurrentSpelling) spellingScore.correct++;
+        feedback.className = 'mt-5 p-4 rounded-xl border border-emerald-500/40 bg-emerald-950/40 text-emerald-200 text-sm transition-all';
+        title.innerHTML = '🎉 Ausgezeichnet! Perfect spelling & capitalization!';
+        detail.innerHTML = `<strong>${item.german}</strong><br><span class="text-xs text-emerald-300 mt-1 block">Pronunciation: ${item.phonetic}</span>`;
+      } else if (isCaseInsensitiveMatch) {
+        feedback.className = 'mt-5 p-4 rounded-xl border border-amber-500/40 bg-amber-950/40 text-amber-200 text-sm transition-all';
+        title.innerHTML = '⚠️ Almost! Watch Capitalization & Punctuation';
+        detail.innerHTML = `You wrote: <span class="line-through opacity-70">${userText}</span><br>Correct form: <strong>${item.german}</strong><br><span class="text-xs text-amber-300 mt-1 block">${item.notes}</span>`;
+      } else {
+        feedback.className = 'mt-5 p-4 rounded-xl border border-rose-500/40 bg-rose-950/40 text-rose-200 text-sm transition-all';
+        title.innerHTML = '❌ Needs Practice';
+        detail.innerHTML = `You wrote: <span class="line-through opacity-70">${userText}</span><br>Correct answer: <strong class="text-white">${item.german}</strong><br><span class="text-xs text-rose-300 mt-1 block font-semibold">${item.notes}</span>`;
+      }
+
+      hasAnsweredCurrentSpelling = true;
+      document.getElementById('accuracyCounter').innerText = `Score: ${spellingScore.correct}/${spellingScore.total}`;
+    }
+
+    function giveSpellingHint() {
+      const item = vocabData[currentIndex];
+      const feedback = document.getElementById('spellingFeedback');
+      const title = document.getElementById('feedbackTitle');
+      const detail = document.getElementById('feedbackDetail');
+
+      feedback.classList.remove('hidden');
+      feedback.className = 'mt-5 p-4 rounded-xl border border-indigo-500/40 bg-indigo-950/40 text-indigo-200 text-sm transition-all';
+      
+      // Reveal first letter of each word
+      const hintWord = item.cleanGerman.split(' ').map(w => w[0] + '_'.repeat(w.length - 1)).join(' ');
+      title.innerHTML = '💡 Hint';
+      detail.innerHTML = `Pattern: <code class="font-mono bg-black/40 px-2 py-0.5 rounded text-amber-300">${hintWord}</code><br><span class="text-xs mt-1 block text-indigo-300">${item.notes}</span>`;
+    }
+
+    function nextSpellingCard() {
+      nextCard();
+    }
+
+    function speakGerman(event) {
+      if (event) event.stopPropagation();
+      speakGermanCurrent();
+    }
+
+    function speakGermanCurrent() {
+      const text = vocabData[currentIndex].german;
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'de-DE';
+        utterance.rate = 0.85; // Slightly slower for language learners
+        window.speechSynthesis.speak(utterance);
+      } else {
+        alert("Audio synthesis is not supported on your browser.");
+      }
+    }
+
+    function toggleSummary() {
+      const modal = document.getElementById('summaryModal');
+      modal.classList.toggle('hidden');
+    }
+
+    function populateSummaryTable() {
+      const container = document.getElementById('wordListTable');
+      container.innerHTML = vocabData.map((item, i) => `
+        <div class="p-3 bg-slate-900/80 rounded-xl border border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div class="flex-1">
+            <span class="text-xs font-bold text-amber-400 mr-1.5">#${i+1}</span>
+            <span class="text-xs text-slate-400">${item.english}</span>
+            <div class="text-base font-bold text-white mt-0.5">${item.german}</div>
+            <div class="text-xs text-indigo-300 mt-0.5">${item.notes}</div>
+          </div>
+          <button onclick="jumpToWord(${i})" class="self-start sm:self-center px-3 py-1.5 bg-indigo-600/30 hover:bg-indigo-600 text-indigo-200 hover:text-white rounded-lg text-xs font-semibold transition border border-indigo-500/30">
+            Practice this
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function jumpToWord(index) {
+      currentIndex = index;
+      toggleSummary();
+      updateCardUI();
+    }
+
+    // Keyboard navigation
+    window.addEventListener('keydown', (e) => {
+      if (currentMode === 'flashcard') {
+        if (e.code === 'Space') {
+          e.preventDefault();
+          flipCard();
+        } else if (e.code === 'ArrowRight') {
+          nextCard();
+        } else if (e.code === 'ArrowLeft') {
+          prevCard();
+        }
+      }
+    });
+
+    // Initial setup
+    populateGroupSelect();
+    changeGroup(selectedGroup);
+  </script>
+</body>
+</html>
