@@ -31,13 +31,19 @@
   <div class="w-full max-w-7xl lg:grid lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-8">
     <!-- Vocabulary Collection Navigation -->
     <aside class="mb-6 rounded-2xl border border-slate-700 bg-slate-800/80 p-3 shadow-xl lg:sticky lg:top-6 lg:mb-0 lg:self-start" aria-labelledby="collectionNavHeading">
-      <div class="px-2 pb-3 pt-1">
-        <div class="text-xs font-bold uppercase tracking-[0.18em] text-amber-400">Library</div>
-        <h2 id="collectionNavHeading" class="mt-1 text-lg font-extrabold text-white">Vocabulary Sets</h2>
-        <p class="mt-1 text-xs leading-relaxed text-slate-400">Choose a vocabulary collection, then select a group to practice.</p>
+      <div class="flex items-start justify-between gap-4 px-2 pb-3 pt-1">
+        <div>
+          <div class="text-xs font-bold uppercase tracking-[0.18em] text-amber-400">Library</div>
+          <h2 id="collectionNavHeading" class="mt-1 text-lg font-extrabold text-white">Vocabulary Sets</h2>
+          <p class="mt-1 text-xs leading-relaxed text-slate-400">Choose a vocabulary collection, then select a group to practice.</p>
+        </div>
+        <button id="collectionMenuButton" type="button" onclick="toggleCollectionMenu()" aria-controls="collectionMenu" aria-expanded="false" class="mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-slate-600 bg-slate-900 text-xl text-slate-200 transition hover:border-indigo-500 hover:bg-indigo-600/20 hover:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 lg:hidden">
+          <span id="collectionMenuIcon" aria-hidden="true">☰</span>
+          <span class="sr-only">Toggle vocabulary sets</span>
+        </button>
       </div>
 
-      <nav aria-label="Vocabulary collections">
+      <nav id="collectionMenu" aria-label="Vocabulary collections" class="hidden border-t border-slate-700 pt-3 lg:block lg:border-t-0 lg:pt-0">
         <ol class="space-y-2">
           <li>
             <a href="./index.html" aria-current="page" class="grid grid-cols-[3.25rem_minmax(0,1fr)] items-center overflow-hidden rounded-xl border border-indigo-500/50 bg-indigo-600/20 text-left shadow-sm transition hover:bg-indigo-600/30 focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
@@ -269,6 +275,19 @@
     let currentMode = 'flashcard'; // 'flashcard' or 'spelling'
     let spellingScore = { correct: 0, total: 0 };
     let hasAnsweredCurrentSpelling = false;
+
+    function toggleCollectionMenu(forceOpen) {
+      const menu = document.getElementById('collectionMenu');
+      const button = document.getElementById('collectionMenuButton');
+      const icon = document.getElementById('collectionMenuIcon');
+      const shouldOpen = typeof forceOpen === 'boolean'
+        ? forceOpen
+        : menu.classList.contains('hidden');
+
+      menu.classList.toggle('hidden', !shouldOpen);
+      button.setAttribute('aria-expanded', String(shouldOpen));
+      icon.innerText = shouldOpen ? '✕' : '☰';
+    }
 
     function getAllVocab() {
       return Object.values(vocabGroups).flatMap(group => group.items);
@@ -504,6 +523,10 @@
 
     // Keyboard navigation
     window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        toggleCollectionMenu(false);
+      }
+
       if (currentMode === 'flashcard') {
         if (e.code === 'Space') {
           e.preventDefault();
