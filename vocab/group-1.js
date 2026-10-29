@@ -1,6 +1,4 @@
-window.VOCAB_GROUPS = window.VOCAB_GROUPS || {};
-
-window.VOCAB_GROUPS['1'] = {
+window.VOCAB_SETS['herzlich-willkommen-vokabeln-1'].groups['1'] = {
   name: 'Group 1',
   description: 'Party preparation, invitations, clothing, greetings, and hosting.',
   items: [

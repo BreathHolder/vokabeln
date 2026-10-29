@@ -1,21 +1,30 @@
-# Vocabulary group files
+# Vocabulary set and group files
 
-Each vocabulary group is a standalone JavaScript file. This format works even
-when the main HTML file is opened directly from disk.
+`sets.js` defines each named vocabulary set. Every set owns a `groups` object,
+so separate sets can each have a Group 1 without overwriting one another. The
+standalone JavaScript files work even when the main HTML file is opened directly
+from disk.
 
-To add a group:
+To add a set:
 
-1. Copy `group-3.js` to a file such as `group-4.js`.
-2. Change the group key, name, description, and vocabulary items.
-3. Load the file before the app script in `index.html`:
+1. Add an entry to `sets.js` with a unique ID, display name, default group, and
+   an empty `groups` object.
+2. Create one or more group files for the set. Prefix filenames with the set ID
+   when needed to keep them distinct from existing files.
+3. Attach each group to its set:
 
    ```html
-   <script src="vocab/group-3.js"></script>
-   <script src="vocab/group-4.js"></script>
-   <script>
-     // The app starts here.
-   </script>
+   window.VOCAB_SETS['new-set-id'].groups['1'] = {
+     name: 'Group 1',
+     description: 'A short description.',
+     items: []
+   };
    ```
+4. Load each new group file in `index.html` after `vocab/sets.js` and before the
+   app script.
+
+To add a group to an existing set, create its group file, attach it to that
+set's `groups` object, and load the file in `index.html`.
 
 Each vocabulary item uses these fields:
 

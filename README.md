@@ -1,7 +1,7 @@
 # German Vocabulary Learning
 
-A browser-based flashcard and spelling trainer for the *Herzlich Willkommen*
-German vocabulary lists.
+A browser-based flashcard and spelling trainer for multiple German vocabulary
+sets. Each set can contain its own numbered groups.
 
 ## Run locally
 
@@ -16,5 +16,5 @@ Open `index.html` in a browser. No build step or local server is required.
 
 The deployed URL is shown in the workflow summary after deployment.
 
-Vocabulary groups live in `vocab/`. See `vocab/README.md` for the file format
-and instructions for adding another group.
+Vocabulary sets and groups live in `vocab/`. See `vocab/README.md` for the file
+format and instructions for adding another set or group.

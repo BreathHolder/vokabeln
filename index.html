@@ -44,13 +44,8 @@
       </div>
 
       <nav id="collectionMenu" aria-label="Vocabulary collections" class="hidden border-t border-slate-700 pt-3 lg:block lg:border-t-0 lg:pt-0">
-        <ol class="space-y-2">
-          <li>
-            <a href="./index.html" aria-current="page" class="grid grid-cols-[3.25rem_minmax(0,1fr)] items-center overflow-hidden rounded-xl border border-indigo-500/50 bg-indigo-600/20 text-left shadow-sm transition hover:bg-indigo-600/30 focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
-              <span class="flex h-full min-h-16 items-center justify-center border-r border-indigo-500/30 bg-indigo-950/60 font-mono text-sm font-extrabold tracking-wider text-amber-300">001</span>
-              <span class="px-3 py-3 text-sm font-bold leading-snug text-white">Herzlich Willkommen Vokabeln 1</span>
-            </a>
-          </li>
+        <ol id="setList" class="space-y-2">
+          <!-- Vocabulary sets injected from VOCAB_SETS -->
         </ol>
       </nav>
     </aside>
@@ -312,17 +307,23 @@
     </main>
   </div>
 
-  <!-- Load each standalone vocabulary group before the app script. -->
+  <!-- Load the set registry and each standalone vocabulary group before the app script. -->
+  <script src="vocab/sets.js"></script>
   <script src="vocab/group-1.js"></script>
   <script src="vocab/group-2.js"></script>
   <script src="vocab/group-3.js"></script>
+  <script src="vocab/group-4.js"></script>
   <script>
-    const vocabGroups = window.VOCAB_GROUPS;
-
-    let selectedGroup = '3';
+    const vocabSets = window.VOCAB_SETS;
+    let selectedSetId = Object.keys(vocabSets)[0];
+    let selectedSet = vocabSets[selectedSetId];
+    let vocabGroups = selectedSet.groups;
+    let selectedGroup = selectedSet.defaultGroup || Object.keys(vocabGroups)[0];
     let sourceVocabData = vocabGroups[selectedGroup].items;
     let vocabData = [...sourceVocabData];
-    const knownCards = new Set();
+    const knownCardsBySet = new Map();
+    let knownCards = new Set();
+    knownCardsBySet.set(selectedSetId, knownCards);
 
     let currentIndex = 0;
     let isFlipped = false;
@@ -347,6 +348,46 @@
       return Object.values(vocabGroups).flatMap(group => group.items);
     }
 
+    function populateSetList() {
+      const list = document.getElementById('setList');
+      const setEntries = Object.entries(vocabSets);
+
+      list.innerHTML = setEntries.map(([id, set], index) => {
+        const isSelected = id === selectedSetId;
+        const buttonClasses = isSelected
+          ? 'border-indigo-500/50 bg-indigo-600/20 hover:bg-indigo-600/30'
+          : 'border-slate-700 bg-slate-900/50 hover:border-slate-600 hover:bg-slate-700/50';
+        const numberClasses = isSelected
+          ? 'border-indigo-500/30 bg-indigo-950/60 text-amber-300'
+          : 'border-slate-700 bg-slate-950/50 text-slate-400';
+
+        return `
+          <li>
+            <button type="button" onclick="changeSet('${id}')" ${isSelected ? 'aria-current="page"' : ''} class="grid w-full grid-cols-[3.25rem_minmax(0,1fr)] items-center overflow-hidden rounded-xl border text-left shadow-sm transition focus:outline-none focus:ring-2 focus:ring-indigo-500/50 ${buttonClasses}">
+              <span class="flex h-full min-h-16 items-center justify-center border-r font-mono text-sm font-extrabold tracking-wider ${numberClasses}">${String(index + 1).padStart(3, '0')}</span>
+              <span class="px-3 py-3 text-sm font-bold leading-snug text-white">${set.name}</span>
+            </button>
+          </li>
+        `;
+      }).join('');
+    }
+
+    function changeSet(setId) {
+      if (!vocabSets[setId]) return;
+
+      selectedSetId = setId;
+      selectedSet = vocabSets[setId];
+      vocabGroups = selectedSet.groups;
+      selectedGroup = selectedSet.defaultGroup || Object.keys(vocabGroups)[0];
+      knownCards = knownCardsBySet.get(setId) || new Set();
+      knownCardsBySet.set(setId, knownCards);
+
+      populateSetList();
+      populateGroupSelect();
+      changeGroup(selectedGroup);
+      toggleCollectionMenu(false);
+    }
+
     function populateGroupSelect() {
       const select = document.getElementById('groupSelect');
       const groups = Object.entries(vocabGroups);
@@ -368,14 +409,15 @@
 
       const selected = groupId === 'all' ? null : vocabGroups[groupId];
       document.getElementById('groupBadge').innerText = selected
-        ? `Herzlich Willkommen Vokabeln 1 · ${selected.name}`
-        : 'Herzlich Willkommen Vokabeln 1 · All Groups';
+        ? `${selectedSet.name} · ${selected.name}`
+        : `${selectedSet.name} · All Groups`;
       document.getElementById('groupDescription').innerText = selected
         ? selected.description
         : `Practice all ${sourceVocabData.length} words and phrases together.`;
       document.getElementById('summaryTitle').innerText = selected
-        ? `${selected.name} German Vocabulary Reference`
-        : 'All German Vocabulary Groups';
+        ? `${selectedSet.name} · ${selected.name} Reference`
+        : `${selectedSet.name} · All Groups`;
+      document.title = `${selectedSet.name} — German Vocab & Spelling Master`;
 
       window.speechSynthesis?.cancel();
       populateSummaryTable();
@@ -658,6 +700,7 @@
     });
 
     // Initial setup
+    populateSetList();
     populateGroupSelect();
     changeGroup(selectedGroup);
   </script>
