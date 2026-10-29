@@ -8,7 +8,7 @@ from disk.
 To add a set:
 
 1. Add an entry to `sets.js` with a unique ID, display name, default group, and
-   an empty `groups` object.
+   an empty `groups` object. Give it an `assetVersion` and a `groupFiles` list.
 2. Create one or more group files for the set. Prefix filenames with the set ID
    when needed to keep them distinct from existing files.
 3. Attach each group to its set:
@@ -20,11 +20,12 @@ To add a set:
      items: []
    };
    ```
-4. Load each new group file in `index.html` after `vocab/sets.js` and before the
-   app script.
+4. Add each new group filename to that set's `groupFiles` list. The vocabulary
+   loader imports it automatically; `index.html` does not need to change.
 
 To add a group to an existing set, create its group file, attach it to that
-set's `groups` object, and load the file in `index.html`.
+set's `groups` object, and add its filename to `groupFiles`. Bump `assetVersion`
+when changing an existing group file so browsers fetch the new version.
 
 Each vocabulary item uses these fields:
 

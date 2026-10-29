@@ -307,25 +307,18 @@
     </main>
   </div>
 
-  <!-- Keep this version in sync across files so a deployment cannot mix registry formats from cache. -->
-  <script src="vocab/sets.js?v=20261028-1"></script>
-  <script src="vocab/group-1.js?v=20261028-1"></script>
-  <script src="vocab/group-2.js?v=20261028-1"></script>
-  <script src="vocab/group-3.js?v=20261028-1"></script>
-  <script src="vocab/group-4.js?v=20261028-1"></script>
+  <!-- The loader reads the set manifest and loads every registered vocabulary group. -->
+  <script src="vocab/loader.js"></script>
   <script>
-    const vocabSets = window.VOCAB_SETS;
-    let selectedSetId = Object.keys(vocabSets)[0];
-    let selectedSet = vocabSets[selectedSetId];
-    let vocabGroups = selectedSet.groups;
-    let selectedGroup = vocabGroups[selectedSet.defaultGroup]
-      ? selectedSet.defaultGroup
-      : Object.keys(vocabGroups)[0];
-    let sourceVocabData = vocabGroups[selectedGroup].items;
-    let vocabData = [...sourceVocabData];
+    let vocabSets;
+    let selectedSetId;
+    let selectedSet;
+    let vocabGroups;
+    let selectedGroup;
+    let sourceVocabData = [];
+    let vocabData = [];
     const knownCardsBySet = new Map();
-    let knownCards = new Set();
-    knownCardsBySet.set(selectedSetId, knownCards);
+    let knownCards;
 
     let currentIndex = 0;
     let isFlipped = false;
@@ -703,10 +696,46 @@
       }
     });
 
-    // Initial setup
-    populateSetList();
-    populateGroupSelect();
-    changeGroup(selectedGroup);
+    function initializeApp(loadedSets) {
+      vocabSets = loadedSets;
+      selectedSetId = Object.keys(vocabSets)[0];
+      selectedSet = vocabSets[selectedSetId];
+
+      if (!selectedSet) {
+        throw new Error('No vocabulary sets are registered.');
+      }
+
+      vocabGroups = selectedSet.groups;
+      selectedGroup = vocabGroups[selectedSet.defaultGroup]
+        ? selectedSet.defaultGroup
+        : Object.keys(vocabGroups)[0];
+
+      if (!selectedGroup) {
+        throw new Error(`No vocabulary groups are registered for ${selectedSet.name}.`);
+      }
+
+      sourceVocabData = vocabGroups[selectedGroup].items;
+      vocabData = [...sourceVocabData];
+      knownCards = new Set();
+      knownCardsBySet.set(selectedSetId, knownCards);
+
+      populateSetList();
+      populateGroupSelect();
+      changeGroup(selectedGroup);
+    }
+
+    function showStartupError(error) {
+      console.error(error);
+      const main = document.querySelector('main');
+      main.innerHTML = `
+        <section class="mt-8 w-full max-w-xl rounded-2xl border border-rose-500/50 bg-rose-950/40 p-6 text-center">
+          <h1 class="text-xl font-bold text-white">Vocabulary could not be loaded</h1>
+          <p class="mt-2 text-sm text-rose-200">Refresh the page to try again.</p>
+        </section>
+      `;
+    }
+
+    window.vocabReady.then(initializeApp).catch(showStartupError);
   </script>
 </body>
 </html>
