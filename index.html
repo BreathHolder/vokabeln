@@ -307,18 +307,20 @@
     </main>
   </div>
 
-  <!-- Load the set registry and each standalone vocabulary group before the app script. -->
-  <script src="vocab/sets.js"></script>
-  <script src="vocab/group-1.js"></script>
-  <script src="vocab/group-2.js"></script>
-  <script src="vocab/group-3.js"></script>
-  <script src="vocab/group-4.js"></script>
+  <!-- Keep this version in sync across files so a deployment cannot mix registry formats from cache. -->
+  <script src="vocab/sets.js?v=20261028-1"></script>
+  <script src="vocab/group-1.js?v=20261028-1"></script>
+  <script src="vocab/group-2.js?v=20261028-1"></script>
+  <script src="vocab/group-3.js?v=20261028-1"></script>
+  <script src="vocab/group-4.js?v=20261028-1"></script>
   <script>
     const vocabSets = window.VOCAB_SETS;
     let selectedSetId = Object.keys(vocabSets)[0];
     let selectedSet = vocabSets[selectedSetId];
     let vocabGroups = selectedSet.groups;
-    let selectedGroup = selectedSet.defaultGroup || Object.keys(vocabGroups)[0];
+    let selectedGroup = vocabGroups[selectedSet.defaultGroup]
+      ? selectedSet.defaultGroup
+      : Object.keys(vocabGroups)[0];
     let sourceVocabData = vocabGroups[selectedGroup].items;
     let vocabData = [...sourceVocabData];
     const knownCardsBySet = new Map();
@@ -378,7 +380,9 @@
       selectedSetId = setId;
       selectedSet = vocabSets[setId];
       vocabGroups = selectedSet.groups;
-      selectedGroup = selectedSet.defaultGroup || Object.keys(vocabGroups)[0];
+      selectedGroup = vocabGroups[selectedSet.defaultGroup]
+        ? selectedSet.defaultGroup
+        : Object.keys(vocabGroups)[0];
       knownCards = knownCardsBySet.get(setId) || new Set();
       knownCardsBySet.set(setId, knownCards);
 
