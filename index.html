@@ -96,14 +96,14 @@
 
   <!-- FLASHCARD MODE VIEW -->
   <div id="flashcardSection" class="w-full max-w-xl flex flex-col items-center">
-    <div class="perspective w-full h-80 sm:h-84 cursor-pointer select-none" onclick="flipCard()">
+    <div id="flashcardGestureArea" class="perspective w-full h-80 sm:h-84 cursor-pointer select-none touch-pan-y" onclick="flipCard()">
       <div id="flashcardInner" class="relative w-full h-full transform-style-3d transition-transform duration-500 rounded-2xl shadow-xl">
         
         <!-- Front of Card (English) -->
         <div class="absolute inset-0 w-full h-full backface-hidden bg-slate-800 border-2 border-slate-700/80 rounded-2xl p-6 sm:p-8 flex flex-col justify-between items-center text-center">
           <div class="w-full flex justify-between items-center text-xs text-slate-400 font-medium">
             <span class="px-2.5 py-0.5 rounded-full bg-slate-700/80 text-slate-300">English Prompt</span>
-            <span>Click card to reveal German</span>
+            <span>Click or tap to reveal German</span>
           </div>
 
           <div class="my-auto">
@@ -113,7 +113,7 @@
 
           <div class="text-xs text-indigo-400 font-semibold flex items-center gap-1.5 animate-pulse">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-            Click or press space to flip
+            Click, tap, or press space to flip · Swipe to change cards
           </div>
         </div>
 
@@ -135,7 +135,7 @@
             </div>
           </div>
 
-          <div class="text-xs text-slate-400">Click anywhere to flip back</div>
+          <div class="text-xs text-slate-400">Click or tap to flip back · Swipe to change cards</div>
         </div>
 
       </div>
@@ -322,6 +322,9 @@
 
     let currentIndex = 0;
     let isFlipped = false;
+    let touchStartX = null;
+    let touchStartY = null;
+    let suppressNextFlip = false;
     let currentMode = 'flashcard'; // 'flashcard' or 'spelling'
     let spellingScore = { correct: 0, total: 0 };
     let hasAnsweredCurrentSpelling = false;
@@ -483,6 +486,11 @@
     }
 
     function flipCard() {
+      if (suppressNextFlip) {
+        suppressNextFlip = false;
+        return;
+      }
+
       if (!vocabData.length) return;
       isFlipped = !isFlipped;
       const inner = document.getElementById('flashcardInner');
@@ -503,6 +511,52 @@
       if (!vocabData.length) return;
       currentIndex = (currentIndex - 1 + vocabData.length) % vocabData.length;
       updateCardUI();
+    }
+
+    function initializeSwipeGestures() {
+      const gestureArea = document.getElementById('flashcardGestureArea');
+      const swipeThreshold = 50;
+
+      gestureArea.addEventListener('touchstart', event => {
+        if (event.touches.length !== 1) {
+          touchStartX = null;
+          touchStartY = null;
+          return;
+        }
+
+        touchStartX = event.touches[0].clientX;
+        touchStartY = event.touches[0].clientY;
+      }, { passive: true });
+
+      gestureArea.addEventListener('touchend', event => {
+        if (touchStartX === null || touchStartY === null || event.changedTouches.length !== 1) return;
+
+        const deltaX = event.changedTouches[0].clientX - touchStartX;
+        const deltaY = event.changedTouches[0].clientY - touchStartY;
+        touchStartX = null;
+        touchStartY = null;
+
+        const isHorizontalSwipe = Math.abs(deltaX) >= swipeThreshold
+          && Math.abs(deltaX) > Math.abs(deltaY);
+        if (!isHorizontalSwipe) return;
+
+        event.preventDefault();
+        suppressNextFlip = true;
+        if (deltaX < 0) {
+          nextCard();
+        } else {
+          prevCard();
+        }
+
+        window.setTimeout(() => {
+          suppressNextFlip = false;
+        }, 500);
+      }, { passive: false });
+
+      gestureArea.addEventListener('touchcancel', () => {
+        touchStartX = null;
+        touchStartY = null;
+      }, { passive: true });
     }
 
     function markCurrentCardKnown() {
@@ -731,6 +785,7 @@
       knownCards = new Set();
       knownCardsBySet.set(selectedSetId, knownCards);
 
+      initializeSwipeGestures();
       populateSetList();
       populateGroupSelect();
       changeGroup(selectedGroup);
