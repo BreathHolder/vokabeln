@@ -86,11 +86,11 @@ window.VOCAB_SETS['herzlich-willkommen-vokabeln-1'].groups['3'] = {
     {
       id: 10,
       english: 'The decoration',
-      german: 'Die Dekoration',
-      cleanGerman: 'Die Dekoration',
+      german: 'die Dekoration',
+      cleanGerman: 'die Dekoration',
       phonetic: 'dee deh-koh-rah-TSYOHN',
       context: 'Feminine noun',
-      notes: "Feminine gender requires 'Die'. All German nouns must be capitalized. Ends in '-tion'."
+      notes: "Use the lowercase article 'die'. Capitalize the noun 'Dekoration'. Ends in '-tion'."
     }
   ]
 };

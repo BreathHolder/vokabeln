@@ -449,6 +449,15 @@
       flashcardSection.classList.toggle('hidden', currentMode !== 'flashcard');
       spellingSection.classList.toggle('hidden', currentMode !== 'spelling');
       const item = vocabData[currentIndex];
+
+      // Return to the English side before replacing either side's content.
+      // Disabling the transition prevents the previous German answer flashing onscreen.
+      const flashcardInner = document.getElementById('flashcardInner');
+      flashcardInner.style.transition = 'none';
+      flashcardInner.classList.remove('rotate-y-180');
+      void flashcardInner.offsetWidth;
+      flashcardInner.style.transition = '';
+      isFlipped = false;
       
       // Update progress
       document.getElementById('cardCounter').innerText = `Card ${currentIndex + 1} of ${vocabData.length}`;
@@ -460,10 +469,6 @@
       document.getElementById('fcGerman').innerText = item.german;
       document.getElementById('fcPronounce').innerText = `[ ${item.phonetic} ]`;
       document.getElementById('fcNotesContent').innerText = item.notes;
-
-      // Reset flip
-      isFlipped = false;
-      document.getElementById('flashcardInner').classList.remove('rotate-y-180');
 
       // Spelling Mode updates
       document.getElementById('spEnglish').innerText = item.english;
@@ -568,7 +573,12 @@
     }
 
     function normalizeText(str) {
-      return str.trim().replace(/[.!?]/g, '').replace(/\s+/g, ' ');
+      return str
+        .normalize('NFC')
+        .replace(/…/g, '...')
+        .replace(/[.!?]+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
     }
 
     function checkSpelling(event) {
@@ -583,8 +593,10 @@
       const detail = document.getElementById('feedbackDetail');
       const nextBtnContainer = document.getElementById('feedbackNextBtnContainer');
 
-      const isExactMatch = userText === item.german || userText === item.cleanGerman;
-      const isCaseInsensitiveMatch = normalizeText(userText).toLowerCase() === normalizeText(item.german).toLowerCase();
+      const normalizedUserText = normalizeText(userText);
+      const normalizedAnswer = normalizeText(item.german);
+      const isExactMatch = normalizedUserText === normalizedAnswer;
+      const isCaseInsensitiveMatch = normalizedUserText.toLowerCase() === normalizedAnswer.toLowerCase();
 
       feedback.classList.remove('hidden');
       nextBtnContainer.classList.remove('hidden');
